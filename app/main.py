@@ -1,8 +1,9 @@
-from fastapi import APIRouter, FastAPI
+from fastapi import APIRouter, FastAPI, HTTPException
 from fastapi.encoders import jsonable_encoder
 from fastapi.responses import JSONResponse
 
 from app.routers import Customer
+from app.database import select_customer
 
 
 # app = APIRouter()
@@ -19,3 +20,23 @@ async def create_customer(item: Customer):
         content=json_compatible_item_data,
         status_code=201
     )
+
+# Get a customer by customer id
+@app.get("/customer/{customer_id}")
+async def read_customer(customer_id: str):
+    
+    customer = select_customer(customer_id)
+
+    # if customer id found in database
+    if len(customer) == 1:
+        id = customer.id.values[0]
+        country = customer.country.values[0]
+        
+        item = Customer(customer_id=id, country=country)
+        
+        # Encode the customer into JSON and send it back
+        json_compatible_item_data = jsonable_encoder(item)
+        return JSONResponse(content=json_compatible_item_data)
+    else:
+        # Raise a 404 exception
+        raise HTTPException(status_code=404, detail="Item not found")
