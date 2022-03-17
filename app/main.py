@@ -46,6 +46,7 @@ async def read_customer(customer_id: str):
         raise HTTPException(status_code=404, detail="Item not found")
 
 
+# Post a new invoice for a customer
 @app.post('/customer/{customer_id}')
 async def create_invoice(customer_id: str, invoice: Invoice):
     
@@ -59,4 +60,15 @@ async def create_invoice(customer_id: str, invoice: Invoice):
     # Read it from the store and return the stored item
     ex_invoice = fakeInvoiceTable[invoice.invoice_id]
     
+    return JSONResponse(content=ex_invoice)
+
+
+# Get a specific invoice by id
+@app.get("/invoice/{invoice_id}")
+async def read_invoice(invoice_id: int):
+    
+    # Read invoice from the dictionary
+    ex_invoice = fakeInvoiceTable[invoice_id]
+
+    # Return the JSON that we stored
     return JSONResponse(content=ex_invoice)
