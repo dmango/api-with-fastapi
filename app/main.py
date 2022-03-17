@@ -3,12 +3,11 @@ from fastapi.encoders import jsonable_encoder
 from fastapi.responses import JSONResponse
 
 from app.routers import Customer, Invoice
-from app.database import select_customer
+from app.database import select_customer, select_invoices
 
 
-fakeInvoiceTable = dict()
+tmp_invoice_table = dict()
 
-# app = APIRouter()
 app = FastAPI()
 
 
@@ -55,10 +54,10 @@ async def create_invoice(customer_id: str, invoice: Invoice):
     
     # Turn the invoice instance into a JSON string and store it
     jsonInvoice = jsonable_encoder(invoice)
-    fakeInvoiceTable[invoice.invoice_id] = jsonInvoice
+    tmp_invoice_table[invoice.invoice_id] = jsonInvoice
 
     # Read it from the store and return the stored item
-    ex_invoice = fakeInvoiceTable[invoice.invoice_id]
+    ex_invoice = tmp_invoice_table[invoice.invoice_id]
     
     return JSONResponse(content=ex_invoice)
 
@@ -68,7 +67,20 @@ async def create_invoice(customer_id: str, invoice: Invoice):
 async def read_invoice(invoice_id: int):
     
     # Read invoice from the dictionary
-    ex_invoice = fakeInvoiceTable[invoice_id]
+    ex_invoice = tmp_invoice_table[invoice_id]
 
     # Return the JSON that we stored
     return JSONResponse(content=ex_invoice)
+
+
+# Return all invoices for a customer
+@app.get("/customer/{customer_id}/invoice")
+async def get_invoices(customer_id: str):
+    
+    ex_json = select_invoices(customer_id)
+
+    # If customer is found in database
+    if len(ex_json) > 0:
+        return JSONResponse(content=ex_json)
+    else:
+        raise HTTPException(status_code=404, detail="No invoice for customer")
