@@ -1,7 +1,7 @@
 from pydantic import BaseModel
 from typing import Optional
 
-from app.routers.urllink import URLLink
+from .urllink import URLLink
 
 
 class Invoice(BaseModel):

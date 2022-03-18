@@ -2,8 +2,9 @@ from fastapi import APIRouter, FastAPI, HTTPException
 from fastapi.encoders import jsonable_encoder
 from fastapi.responses import JSONResponse
 
-from app.routers import Customer, Invoice
-from app.database import select_customer, select_invoices
+from routers.customers import Customer
+from routers.invoices import Invoice
+from database.connector import select_customer, select_invoices
 
 
 tmp_invoice_table = dict()
